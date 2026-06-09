@@ -43,6 +43,15 @@ if(ENABLE_UBSAN)
     add_link_options(-fsanitize=undefined)
 endif()
 
+# ---------------------------------------------------------------------------
+# 128-bit atomics (used by lockfree_mpmc_bounded packed entries).
+# On x86_64, -mcx16 lets the compiler emit `cmpxchg16b` inline instead of
+# generating __sync_*_16 libcalls that require linking libatomic.
+# ---------------------------------------------------------------------------
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86_64|AMD64)")
+    add_compile_options(-mcx16)
+endif()
+
 # SPSC tests
 add_executable(test_spsc tests/test_spsc.cpp)
 target_link_libraries(test_spsc GTest::GTest GTest::Main Threads::Threads)
